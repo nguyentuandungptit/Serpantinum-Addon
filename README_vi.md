@@ -243,7 +243,7 @@ Tùy biến giao diện **Discord** và **Vesktop** theo phong cách Material Yo
 #### Bản Vá Shell (bắt buộc để đồng bộ màu và blur)
 
 Blur và bố cục do `scripts/discord_sync.sh` thay token, nhưng màu chỉ đến từ
-file CSS mà matugen render. Bốn lỗi trong shell phá vỡ pipeline đó:
+file CSS mà matugen render. Năm lỗi trong shell phá vỡ pipeline đó:
 
 - `matugenBaseDir` ghép thêm một `/src` nữa (`SERPANTINUM_DIR` vốn đã kết thúc
   bằng `/src`), nên matugen nhận đường dẫn config không tồn tại và thoát ngay.
@@ -256,10 +256,14 @@ file CSS mà matugen render. Bốn lỗi trong shell phá vỡ pipeline đó:
 - `Config` bỏ qua thay đổi `settings.json` đến trong lúc đang ghi, và ghi đè
   file khi thoát, nên cửa sổ settings và shell có thể làm sống lại giá trị cũ
   như `blurBackground: false`.
+- Tab theme ghi giá trị blur/style mới nhưng không render lại CSS Discord, nên
+  bật blur hay Liquid glass trông như không có tác dụng cho đến lần đổi hình
+  nền hoặc đổi màu kế tiếp.
 
 `scripts/patch_matugen.py` vá tất cả trong
-`<TARGET_DIR>/src/quickshell/singletons/` (`theme/Matugen.qml`,
-`theme/ThemeBackend.qml` nếu có, `system/Config.qml`). Script bám vào mã nguồn
+`<TARGET_DIR>/src/quickshell/` (`singletons/theme/Matugen.qml`,
+`singletons/theme/ThemeBackend.qml` nếu có, `singletons/system/Config.qml`,
+`guide/theme/ThemeTabState.qml`). Script bám vào mã nguồn
 gốc thay vì chép đè cả file, chạy lại nhiều lần không nhân bản, giữ bản gốc ở
 `<tên>.pre-discord-addon`, và `uninstall.sh` sẽ khôi phục lại.
 

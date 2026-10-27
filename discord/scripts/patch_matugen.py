@@ -58,6 +58,7 @@ OUTLINE_MARKER = "outline_variant:"
 BLUR_FALLBACK_MARKER = "let savedTheme ="
 CONFIG_DESTRUCTION_MARKER = "Only flush a write that is still queued"
 CONFIG_RELOAD_MARKER = "onLoaded ignores file changes that arrive while a write"
+THEME_TAB_MARKER = "Re-render the Discord theme immediately"
 
 BASE_DIR_ANCHOR = re.compile(
     r'(?P<indent>[ \t]*)if \(serpDir !== ""\) \{\n'
@@ -96,6 +97,19 @@ CONFIG_EXITED_ANCHOR = re.compile(
     r'[ \t]*config\.settingsLoaded\(\);\n'
     r'(?P=indent)\}'
 )
+
+
+def function_anchor(name):
+    """Match a QML function body so a hunk can be appended before its closing brace."""
+    return re.compile(
+        r'(?P<indent>[ \t]*)function ' + name + r'\((?P<args>[^)]*)\) \{\n'
+        r'(?P<body>(?:[ \t]*[^\n]*\n)*?)'
+        r'(?P=indent)\}'
+    )
+
+
+THEME_TAB_BLUR_ANCHOR = function_anchor("updateBlurBackgroundSetting")
+THEME_TAB_STYLE_ANCHOR = function_anchor("updateBlurStyleSetting")
 
 
 def base_dir_replacement(match):
@@ -157,10 +171,51 @@ def config_exited_replacement(match):
     )
 
 
+def theme_tab_replacement(match):
+    indent = match.group("indent")
+    inner = indent + "    "
+    addition = (
+        f'{inner}// Re-render the Discord theme immediately so toggling blur\n'
+        f'{inner}// does not wait for the next wallpaper or colour change.\n'
+        f'{inner}if (typeof ThemeBackend !== "undefined" '
+        f'&& typeof ThemeBackend.syncElementOpacity === "function") {{\n'
+        f'{inner}    ThemeBackend.syncElementOpacity();\n'
+        f'{inner}}}\n'
+        f'{inner}if (typeof Matugen !== "undefined" '
+        f'&& typeof Matugen.syncDiscord === "function") {{\n'
+        f'{inner}    Matugen.syncDiscord();\n'
+        f'{inner}}}\n'
+    )
+    body = match.group(0)
+    return body[: -len(indent) - 1] + addition + indent + "}"
+
+
+def patch_theme_tab(text):
+    anchors = (
+        (THEME_TAB_BLUR_ANCHOR, "updateBlurBackgroundSetting(): sync Discord now"),
+        (THEME_TAB_STYLE_ANCHOR, "updateBlurStyleSetting(): sync Discord now"),
+    )
+
+    present = False
+    changed = []
+    for anchor, label in anchors:
+        match = anchor.search(text)
+        if match is None:
+            continue
+        present = True
+        if THEME_TAB_MARKER in match.group(0):
+            continue
+        text = anchor.sub(theme_tab_replacement, text, count=1)
+        changed.append(label)
+
+    if not present:
+        return None
+    return text, changed
+
+
 def read(path):
     with open(path, "r", encoding="utf-8") as handle:
         return handle.read()
-
 
 def write(path, text):
     with open(path, "w", encoding="utf-8") as handle:
@@ -330,13 +385,16 @@ def main(argv):
 
     theme_dir = os.path.dirname(matugen_path)
     singletons_dir = os.path.dirname(theme_dir)
+    quickshell_dir = os.path.dirname(singletons_dir)
     theme_backend_path = os.path.join(theme_dir, "ThemeBackend.qml")
     config_path = os.path.join(singletons_dir, "system", "Config.qml")
+    theme_tab_path = os.path.join(quickshell_dir, "guide", "theme", "ThemeTabState.qml")
 
     if revert:
         status = revert_file(matugen_path, (BASE_DIR_MARKER, OUTLINE_MARKER, BLUR_FALLBACK_MARKER), required=True)
         status = revert_file(theme_backend_path, (BLUR_FALLBACK_MARKER,), required=False) or status
         status = revert_file(config_path, (CONFIG_DESTRUCTION_MARKER, CONFIG_RELOAD_MARKER), required=False) or status
+        status = revert_file(theme_tab_path, (THEME_TAB_MARKER,), required=False) or status
         return status
 
     status = apply_file(matugen_path, patch_matugen, required=True)
@@ -344,6 +402,7 @@ def main(argv):
         return status
     apply_file(theme_backend_path, patch_theme_backend, required=False)
     apply_file(config_path, patch_config, required=False)
+    apply_file(theme_tab_path, patch_theme_tab, required=False)
     return 0
 
 

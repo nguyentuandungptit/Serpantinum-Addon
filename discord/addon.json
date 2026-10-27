@@ -1,10 +1,10 @@
 {
   "id": "discord",
   "name": "Discord Mod (Vencord + Serpantinum)",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Adaptive Material You, floating island architecture, and liquid glass styling for Discord via Vencord.",
   "author": "PageNguyen",
   "dependencies": ["discord|vesktop", "vencord"],
   "homepage": "https://github.com/Vendicated/Vencord",
-  "installed_check": "[ -f \"$SERPANTINUM_DIR/src/scripts/discord_sync.sh\" ] && grep -q 'outline_variant' \"$SERPANTINUM_DIR/src/quickshell/singletons/theme/Matugen.qml\" && grep -q 'let savedTheme' \"$SERPANTINUM_DIR/src/quickshell/singletons/theme/Matugen.qml\" && grep -q 'onLoaded ignores file changes' \"$SERPANTINUM_DIR/src/quickshell/singletons/system/Config.qml\""
+  "installed_check": "[ -f \"$SERPANTINUM_DIR/src/scripts/discord_sync.sh\" ] && grep -q 'outline_variant' \"$SERPANTINUM_DIR/src/quickshell/singletons/theme/Matugen.qml\" && grep -q 'let savedTheme' \"$SERPANTINUM_DIR/src/quickshell/singletons/theme/Matugen.qml\" && grep -q 'onLoaded ignores file changes' \"$SERPANTINUM_DIR/src/quickshell/singletons/system/Config.qml\" && grep -q 'Re-render the Discord theme immediately' \"$SERPANTINUM_DIR/src/quickshell/guide/theme/ThemeTabState.qml\""
 }

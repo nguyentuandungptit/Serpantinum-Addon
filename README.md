@@ -243,7 +243,7 @@ Integrates real-time dynamic Material You styling with **Discord** and **Vesktop
 #### Shell Patch (required for colour and blur sync)
 
 Blur and layout are substituted by `scripts/discord_sync.sh`, but colours only
-come from the CSS that matugen renders. Four defects in the shell break that
+come from the CSS that matugen renders. Five defects in the shell break that
 pipeline:
 
 - `matugenBaseDir` appends a second `/src` (`SERPANTINUM_DIR` already ends in
@@ -257,10 +257,14 @@ pipeline:
 - `Config` drops `settings.json` changes that arrive while it is writing, and
   rewrites the file on quit, so the settings window and the shell can resurrect
   stale values such as `blurBackground: false`.
+- The theme settings tab writes the new blur/style value but never re-renders
+  the Discord CSS, so toggling blur or Liquid glass appears to do nothing until
+  the next wallpaper or colour change.
 
 `scripts/patch_matugen.py` fixes them in
-`<TARGET_DIR>/src/quickshell/singletons/` (`theme/Matugen.qml`,
-`theme/ThemeBackend.qml` when present, `system/Config.qml`). It anchors on the
+`<TARGET_DIR>/src/quickshell/` (`singletons/theme/Matugen.qml`,
+`singletons/theme/ThemeBackend.qml` when present, `singletons/system/Config.qml`,
+`guide/theme/ThemeTabState.qml`). It anchors on the
 upstream source instead of copying whole files, is safe to run repeatedly,
 keeps the originals as `<name>.pre-discord-addon`, and `uninstall.sh` restores
 them.

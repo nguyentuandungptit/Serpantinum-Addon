@@ -323,14 +323,15 @@ EOF
 inject_matugen_config "$TARGET_DIR/src/assets/matugen/config.toml"
 inject_matugen_config "$TARGET_DIR/src/assets/matugen/config-static.toml"
 
-# Patch the shell singletons that drive the theme pipeline.
+# Patch the shell files that drive the theme pipeline.
 #
 # Without this, matugen is handed a doubled path ("<root>/src/src/assets/..."),
 # fails silently, and only the blur tokens (substituted by discord_sync.sh)
-# ever reach Discord. The same patcher also keeps blur alive when a colour is
-# picked from the standalone settings window and closes two settings.json
-# races between that window and the shell. Every edit is anchored on upstream
-# source and idempotent, so a shell update does not need manual editing.
+# ever reach Discord. The same patcher keeps blur alive when a colour is picked
+# from the standalone settings window, re-renders the Discord CSS as soon as
+# blur or Liquid glass is toggled, and closes two settings.json races between
+# that window and the shell. Every edit is anchored on upstream source and
+# idempotent, so a shell update does not need manual editing.
 MATUGEN_QML="$TARGET_DIR/src/quickshell/singletons/theme/Matugen.qml"
 if [[ "$SKIP_QML_PATCH" == "true" ]]; then
     echo "Skipping shell patch (--skip-qml-patch)"
