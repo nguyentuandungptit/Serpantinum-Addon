@@ -177,6 +177,7 @@ Tệp `install.sh` phải được cấp quyền thực thi (`chmod +x install.s
 2. **Triển khai tệp:** Sao chép template vào `<TARGET_DIR>/src/assets/matugen/templates/` và script vào `<TARGET_DIR>/src/scripts/`.
 3. **Thêm cấu hình Matugen:** Bổ sung khối `[templates.<addon_id>]` vào `<TARGET_DIR>/src/assets/matugen/config.toml` và `config-static.toml` (**phải đảm bảo không bị nhân bản nếu chạy lại nhiều lần**).
 4. **Cấu hình ứng dụng đích:** Tự động kích hoạt theme trong file thiết lập của ứng dụng (ví dụ: `~/.config/Vencord/settings/settings.json`).
+5. **Vá shell khi cần:** Nếu addon phụ thuộc vào một lỗi đã được sửa trong shell, hãy kèm một patcher nhỏ bám vào mã nguồn gốc, chạy lặp lại an toàn, giữ bản sao lưu `.pre-<addon_id>` và khôi phục khi gỡ cài đặt.
 
 ### Quy Ước Cho `uninstall.sh`
 
@@ -192,7 +193,8 @@ Tệp `uninstall.sh` phải có quyền thực thi (`chmod +x uninstall.sh`) và
 1. **Xóa tệp addon:** Xóa template và script đã cài trong `<TARGET_DIR>`.
 2. **Khôi phục cấu hình Matugen:** Tách bỏ sạch sẽ khối `[templates.<addon_id>]` khỏi `config.toml` và `config-static.toml` mà không làm thay đổi các phần cấu hình khác.
 3. **Khôi phục ứng dụng:** Tắt theme trong ứng dụng đích (hoặc chạy lệnh khôi phục nguyên bản).
-4. **Tính lũy biến:** Phải chạy trơn tru với mã thoát `0` ngay cả khi các tệp đã bị xóa từ trước.
+4. **Khôi phục tệp shell đã vá:** Trả lại bản sao lưu `.pre-<addon_id>` do installer tạo ra.
+5. **Tính lũy biến:** Phải chạy trơn tru với mã thoát `0` ngay cả khi các tệp đã bị xóa từ trước.
 
 ### Tích Hợp Với Matugen & Pipeline Giao Diện
 
@@ -237,3 +239,29 @@ Tùy biến giao diện **Discord** và **Vesktop** theo phong cách Material Yo
 # Gỡ bỏ Discord Addon
 ./install.sh uninstall discord
 ```
+
+#### Bản Vá Shell (bắt buộc để đồng bộ màu)
+
+Blur và bố cục do `scripts/discord_sync.sh` thay token, nhưng màu chỉ đến từ
+file CSS mà matugen render. Hai lỗi trong shell khiến matugen chết âm thầm:
+
+- `matugenBaseDir` ghép thêm một `/src` nữa (`SERPANTINUM_DIR` vốn đã kết thúc
+  bằng `/src`), nên matugen nhận đường dẫn config không tồn tại và thoát ngay.
+  Code cũ bỏ qua stderr nên không ai thấy lỗi.
+- `toMd3()` không sinh `outline_variant`, nên palette tĩnh chết với
+  `ResolveError at discord:NN:NN`.
+
+`scripts/patch_matugen.py` vá cả hai trong
+`<TARGET_DIR>/src/quickshell/singletons/theme/Matugen.qml`. Script bám vào mã
+nguồn gốc thay vì chép đè cả file, chạy lại nhiều lần không nhân bản, giữ bản
+gốc ở `Matugen.qml.pre-discord-addon`, và `uninstall.sh` sẽ khôi phục lại.
+
+Phải chạy lại installer sau mỗi lần cập nhật Serpantinum, vì bản cập nhật thay
+toàn bộ cây `src/`:
+
+```bash
+./install.sh install discord
+```
+
+Dùng `--skip-qml-patch` nếu chỉ muốn cài theme mà không đụng vào shell (blur
+vẫn đồng bộ, nhưng màu sẽ không đổi theo hình nền).

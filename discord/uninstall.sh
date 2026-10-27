@@ -7,6 +7,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 TARGET_DIR=""
 NON_INTERACTIVE=false
 SKIP_VENCORD_CONFIG=false
+SKIP_QML_PATCH=false
 
 print_usage() {
     cat << 'EOF'
@@ -20,6 +21,7 @@ Options:
   --target-dir <DIR>      Serpantinum target directory to remove addon files from
   --non-interactive       Run non-interactively without user prompts
   --skip-vencord-config   Skip modifying ~/.config/Vencord settings and themes
+  --skip-qml-patch        Keep the shell's Matugen.qml patch in place
   -h, --help              Show this help message and exit
 EOF
 }
@@ -49,6 +51,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-vencord-config)
             SKIP_VENCORD_CONFIG=true
+            shift
+            ;;
+        --skip-qml-patch)
+            SKIP_QML_PATCH=true
             shift
             ;;
         *)
@@ -164,7 +170,16 @@ PYEOF
 remove_matugen_config "$TARGET_DIR/src/assets/matugen/config.toml"
 remove_matugen_config "$TARGET_DIR/src/assets/matugen/config-static.toml"
 
-# 3. Clean Vencord configuration if not skipped
+# 3. Restore the shell singleton from the addon backup
+MATUGEN_QML="$TARGET_DIR/src/quickshell/singletons/theme/Matugen.qml"
+SOURCE_QML_PATCHER="$SCRIPT_DIR/scripts/patch_matugen.py"
+if [[ "$SKIP_QML_PATCH" == "true" ]]; then
+    echo "Keeping Matugen.qml patch (--skip-qml-patch)"
+elif [[ -f "$MATUGEN_QML" && -f "$SOURCE_QML_PATCHER" ]]; then
+    python3 "$SOURCE_QML_PATCHER" --revert "$MATUGEN_QML" || true
+fi
+
+# 4. Clean Vencord configuration if not skipped
 if [[ "$SKIP_VENCORD_CONFIG" != "true" ]]; then
     echo "Updating Vencord configuration..."
 

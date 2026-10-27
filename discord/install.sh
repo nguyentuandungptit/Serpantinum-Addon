@@ -6,12 +6,14 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 SOURCE_TEMPLATE="$SCRIPT_DIR/templates/discord-theme.css.template"
 SOURCE_SYNC_SCRIPT="$SCRIPT_DIR/scripts/discord_sync.sh"
+SOURCE_QML_PATCHER="$SCRIPT_DIR/scripts/patch_matugen.py"
 
 TARGET_DIR=""
 CHECK_DEPS=false
 NON_INTERACTIVE=false
 SKIP_DEPS=false
 SKIP_VENCORD_CONFIG=false
+SKIP_QML_PATCH=false
 FORCE=false
 
 print_usage() {
@@ -27,6 +29,8 @@ Options:
   --non-interactive       Run non-interactively without user prompts
   --skip-deps             Skip dependency checks
   --skip-vencord-config   Skip configuring ~/.config/Vencord settings and themes
+  --skip-qml-patch        Do not patch the shell's Matugen.qml (blur still syncs,
+                          but Discord colours will not follow the wallpaper)
   --force                 Proceed with installation even if dependencies are missing
   -h, --help              Show this help message and exit
 EOF
@@ -65,6 +69,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-vencord-config)
             SKIP_VENCORD_CONFIG=true
+            shift
+            ;;
+        --skip-qml-patch)
+            SKIP_QML_PATCH=true
             shift
             ;;
         --force)
@@ -313,6 +321,29 @@ EOF
 
 inject_matugen_config "$TARGET_DIR/src/assets/matugen/config.toml"
 inject_matugen_config "$TARGET_DIR/src/assets/matugen/config-static.toml"
+
+# Patch the shell singleton that drives matugen.
+#
+# Without this, matugen is handed a doubled path ("<root>/src/src/assets/..."),
+# fails silently, and only the blur tokens (substituted by discord_sync.sh)
+# ever reach Discord. The patch is anchored on upstream source, idempotent, and
+# re-applied by every install, so a shell update does not need manual editing.
+MATUGEN_QML="$TARGET_DIR/src/quickshell/singletons/theme/Matugen.qml"
+if [[ "$SKIP_QML_PATCH" == "true" ]]; then
+    echo "Skipping Matugen.qml patch (--skip-qml-patch)"
+elif [[ ! -f "$SOURCE_QML_PATCHER" ]]; then
+    echo "Warning: patcher not found: $SOURCE_QML_PATCHER" >&2
+elif [[ ! -f "$MATUGEN_QML" ]]; then
+    echo "Warning: $MATUGEN_QML not found; skipping shell patch." >&2
+    echo "         Discord colours will not follow the wallpaper." >&2
+else
+    if ! python3 "$SOURCE_QML_PATCHER" "$MATUGEN_QML"; then
+        echo "" >&2
+        echo "Warning: the shell patch could not be applied." >&2
+        echo "         Blur/layout will work, but Discord colours will stay stale." >&2
+        echo "         The addon needs updating for this Serpantinum version." >&2
+    fi
+fi
 
 # Configure Vencord settings and theme if not skipped
 if [[ "$SKIP_VENCORD_CONFIG" != "true" ]]; then

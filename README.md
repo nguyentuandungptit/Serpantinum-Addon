@@ -177,6 +177,7 @@ The installer must be executable (`chmod +x install.sh`) and support the followi
 2. **Deploy Files:** Copy templates to `<TARGET_DIR>/src/assets/matugen/templates/` and runtime scripts to `<TARGET_DIR>/src/scripts/`.
 3. **Inject Matugen Config:** Append `[templates.<addon_id>]` into `<TARGET_DIR>/src/assets/matugen/config.toml` and `config-static.toml` idempotently.
 4. **Configure Target App:** Point the target app to the generated theme (e.g. `~/.config/Vencord/settings/settings.json`).
+5. **Patch The Shell When Required:** If the addon depends on a shell bug being fixed, ship a small anchored patcher, apply it idempotently, keep a `.pre-<addon_id>` backup, and restore it on uninstall.
 
 ### `uninstall.sh` Contract
 
@@ -192,7 +193,8 @@ The uninstaller must be executable (`chmod +x uninstall.sh`) and support:
 1. **Remove Deployed Files:** Delete installed templates and scripts from `<TARGET_DIR>`.
 2. **Revert Matugen Config:** Remove `[templates.<addon_id>]` cleanly from `config.toml` and `config-static.toml` without touching other sections.
 3. **Revert Target App:** Disable or reset external app theme configuration.
-4. **Idempotency:** Must exit with code `0` even if files were already removed.
+4. **Restore Patched Shell Files:** Put back any `.pre-<addon_id>` backup the installer created.
+5. **Idempotency:** Must exit with code `0` even if files were already removed.
 
 ### Integrating with Matugen & Theming Pipeline
 
@@ -237,3 +239,31 @@ Integrates real-time dynamic Material You styling with **Discord** and **Vesktop
 # Uninstall Discord Mod
 ./install.sh uninstall discord
 ```
+
+#### Shell Patch (required for colour sync)
+
+Blur and layout are substituted by `scripts/discord_sync.sh`, but colours only
+come from the CSS that matugen renders. Two defects in the shell make matugen
+fail silently:
+
+- `matugenBaseDir` appends a second `/src` (`SERPANTINUM_DIR` already ends in
+  `/src`), so matugen is handed a config path that does not exist and exits
+  immediately. The old code discarded stderr, so the failure was invisible.
+- `toMd3()` never emits `outline_variant`, so static palettes abort with
+  `ResolveError at discord:NN:NN`.
+
+`scripts/patch_matugen.py` fixes both in
+`<TARGET_DIR>/src/quickshell/singletons/theme/Matugen.qml`. It anchors on the
+upstream source instead of copying the whole file, is safe to run repeatedly,
+keeps the original as `Matugen.qml.pre-discord-addon`, and `uninstall.sh`
+restores it.
+
+Re-run the installer after every Serpantinum update, because an update replaces
+the entire `src/` tree:
+
+```bash
+./install.sh install discord
+```
+
+Use `--skip-qml-patch` to install the theme without touching the shell (blur
+keeps syncing, colours stay stale).
