@@ -71,6 +71,8 @@ if [[ -z "$TARGET_DIR" ]]; then
         TARGET_DIR="$REPO_ROOT"
     fi
 fi
+TARGET_DIR="${TARGET_DIR%/src}"
+TARGET_DIR="${TARGET_DIR%/}"
 
 prompt_user() {
     local prompt="$1"

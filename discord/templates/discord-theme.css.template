@@ -312,12 +312,22 @@ div[class*="searchBar_"] {
   border-left: 3px solid var(--serp-primary) !important;
 }
 
-/* Unread Channel Indicator Bar */
-div[class*="unread_"] {
+/* Unread Channel Indicator Bar (only on channel list items, never top/bottom bars) */
+[class*="channel_"] [class*="unread_"],
+[class*="containerDefault_"] [class*="unread_"],
+[class*="modeUnread_"] [class*="unread_"] {
   background-color: var(--serp-primary) !important;
   border-radius: 4px !important;
   width: 4px !important;
   box-shadow: 0 0 6px color-mix(in srgb, var(--serp-primary) 50%, transparent) !important;
+}
+
+/* Hide floating top/bottom unread indicator notification bars that obstruct channels in sidebar */
+[class*="unreadTop_"],
+[class*="unreadBottom_"],
+[class*="unreadMentionsIndicatorTop_"],
+[class*="unreadMentionsIndicatorBottom_"] {
+  display: none !important;
 }
 
 /* 3. User Panels Island (Bottom Left Profile, Audio Controls) */
@@ -352,9 +362,9 @@ section[class*="panels_"] [class*="connection_"] {
   padding-right: var(--serp-gap) !important;
 }
 
-/* Titlebar */
+/* Titlebar Island */
 [class*="subtitleContainer_"],
-section[class*="title_"] {
+[class*="chat_"] > section[class*="title_"]:not([class*="subtitleContainer_"] *) {
   margin-bottom: var(--serp-gap) !important;
   border-radius: var(--serp-radius) !important;
   background-color: color-mix(in srgb, var(--serp-base) calc(var(--serp-bg-opacity) * 100%), transparent) !important;
@@ -362,11 +372,19 @@ section[class*="title_"] {
   -webkit-backdrop-filter: var(--serp-backdrop-blur);
   border: var(--serp-island-border) !important;
   box-shadow: var(--serp-island-shadow) !important;
+  overflow: hidden !important;
 }
 
+/* Ensure inner section and toolbars NEVER have a duplicate nested border or background */
+[class*="subtitleContainer_"] section[class*="title_"],
 section[class*="title_"] [class*="children_"],
 section[class*="title_"] [class*="toolbar_"] {
   background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
 }
 
 /* Messages Scroller Island */

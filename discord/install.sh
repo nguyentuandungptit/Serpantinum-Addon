@@ -91,6 +91,8 @@ if [[ -z "$TARGET_DIR" ]]; then
         TARGET_DIR="$REPO_ROOT"
     fi
 fi
+TARGET_DIR="${TARGET_DIR%/src}"
+TARGET_DIR="${TARGET_DIR%/}"
 
 check_discord() {
     if command -v discord >/dev/null 2>&1 || command -v vesktop >/dev/null 2>&1; then

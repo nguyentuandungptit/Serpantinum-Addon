@@ -33,6 +33,8 @@ resolve_serpantinum_dir() {
             SERPANTINUM_DIR="$REPO_ROOT"
         fi
     fi
+    SERPANTINUM_DIR="${SERPANTINUM_DIR%/src}"
+    SERPANTINUM_DIR="${SERPANTINUM_DIR%/}"
     export SERPANTINUM_DIR
 }
 
