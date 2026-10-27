@@ -1,0 +1,796 @@
+/**
+ * @name Serpantinum
+ * @description Serpantinum Material You / Floating Island Liquid Glass theme for Vencord
+ * @version 2.0.0
+ * @author PageNguyen
+ */
+
+/* ==========================================================================
+   Serpantinum Design System Tokens & Discord Semantic Binding
+   ========================================================================== */
+
+:root,
+.theme-dark,
+.theme-light,
+.visual-refresh.theme-dark,
+.visual-refresh.theme-light {
+  /* Serpantinum Material You / Palette Tokens */
+  --serp-base: {{colors.surface_container_lowest.default.hex}};
+  --serp-mantle: {{colors.surface_container_low.default.hex}};
+  --serp-crust: {{colors.surface.default.hex}};
+  --serp-surface0: {{colors.surface_container.default.hex}};
+  --serp-surface1: {{colors.surface_container_high.default.hex}};
+  --serp-surface2: {{colors.surface_container_highest.default.hex}};
+  --serp-overlay0: {{colors.inverse_surface.default.hex}};
+  --serp-overlay1: {{colors.inverse_surface.default.hex}};
+  --serp-overlay2: {{colors.inverse_surface.default.hex}};
+
+  --serp-primary: {{colors.primary.default.hex}};
+  --serp-primary-container: {{colors.primary_container.default.hex}};
+  --serp-secondary: {{colors.secondary.default.hex}};
+  --serp-tertiary: {{colors.tertiary.default.hex}};
+  --serp-text: {{colors.on_surface.default.hex}};
+  --serp-subtext0: {{colors.on_surface_variant.default.hex}};
+  --serp-subtext1: {{colors.outline.default.hex}};
+  --serp-outline: {{colors.outline.default.hex}};
+  --serp-outline-variant: {{colors.outline_variant.default.hex}};
+  --serp-error: {{colors.error.default.hex}};
+
+  /* Accents */
+  --serp-blue: {{colors.primary.default.hex}};
+  --serp-sapphire: {{colors.primary_container.default.hex}};
+  --serp-peach: {{colors.tertiary.default.hex}};
+  --serp-green: {{colors.secondary.default.hex}};
+  --serp-red: {{colors.error.default.hex}};
+  --serp-mauve: {{colors.primary.default.hex}};
+  --serp-pink: {{colors.tertiary_container.default.hex}};
+  --serp-yellow: {{colors.secondary_container.default.hex}};
+  --serp-maroon: {{colors.error_container.default.hex}};
+  --serp-teal: {{colors.secondary.default.hex}};
+
+  /* Serpantinum Runtime Geometry & Effects */
+  --serp-radius: __BORDER_RADIUS__px;
+  --serp-bg-opacity: __BG_OPACITY__;
+  --serp-backdrop-blur: __BACKDROP_BLUR__;
+  --serp-island-border: __ISLAND_BORDER__;
+  --serp-island-shadow: __ISLAND_SHADOW__;
+  --serp-wallpaper: __WALLPAPER_URL__;
+  --serp-window-bg: __WINDOW_BG__;
+  --serp-gap: 8px;
+
+  --popout-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.45),
+    0 4px 12px rgba(0, 0, 0, 0.25);
+
+  /* Modern Discord Semantic Variable Overrides (Transparent so glass islands control translucency) */
+  --background-primary: transparent;
+  --background-secondary: transparent;
+  --background-secondary-alt: transparent;
+  --background-tertiary: transparent;
+  --background-accent: color-mix(in srgb, var(--serp-surface1) 35%, transparent);
+  --background-floating: color-mix(in srgb, var(--serp-mantle) 90%, transparent);
+  --channeltextarea-background: transparent;
+  --chat-background: transparent;
+  --chat-background-default: transparent;
+  --chat-border: transparent;
+  --chat-banner-bg: transparent;
+
+  --background-base-lowest: transparent;
+  --background-base-lower: transparent;
+  --background-base-low: transparent;
+  --background-surface-high: color-mix(in srgb, var(--serp-surface0) 45%, transparent);
+  --bg-base-primary: transparent;
+  --bg-base-secondary: transparent;
+  --bg-base-tertiary: transparent;
+  --bg-surface-raised: color-mix(in srgb, var(--serp-surface0) 40%, transparent);
+  --bg-surface-overlay: color-mix(in srgb, var(--serp-surface1) 45%, transparent);
+  --bg-mod-subtle: color-mix(in srgb, var(--serp-surface1) 20%, transparent);
+  --bg-mod-normal: color-mix(in srgb, var(--serp-surface1) 35%, transparent);
+  --bg-mod-strong: color-mix(in srgb, var(--serp-surface2) 55%, transparent);
+
+  /* Typography & Foreground */
+  --text-normal: var(--serp-text);
+  --text-muted: var(--serp-subtext0);
+  --text-link: var(--serp-primary);
+  --text-link-low-saturation: var(--serp-sapphire);
+  --text-positive: var(--serp-green);
+  --text-warning: var(--serp-yellow);
+  --text-danger: var(--serp-red);
+  --text-brand: var(--serp-primary);
+  --text-default: var(--serp-text);
+  --header-primary: var(--serp-text);
+  --header-secondary: var(--serp-subtext0);
+
+  /* Interactivity */
+  --interactive-normal: var(--serp-subtext0);
+  --interactive-hover: var(--serp-text);
+  --interactive-active: var(--serp-primary);
+  --interactive-muted: var(--serp-subtext1);
+
+  /* Brand Accents */
+  --brand-experiment: var(--serp-primary);
+  --brand-500: var(--serp-primary);
+
+  /* Scrollbars */
+  --scrollbar-auto-thumb: color-mix(in srgb, var(--serp-surface1) 60%, transparent);
+  --scrollbar-auto-track: transparent;
+  --scrollbar-thin-thumb: color-mix(in srgb, var(--serp-surface1) 60%, transparent);
+  --scrollbar-thin-track: transparent;
+}
+
+/* ==========================================================================
+   Window Transparency & Clean Canvas
+   ========================================================================== */
+
+html,
+body {
+  background: transparent !important;
+}
+
+#app-mount,
+[class*="app_"],
+[class*="bg_"],
+[class*="layers_"],
+[class*="layer_"],
+[class*="base_"],
+[class*="content_"],
+[class*="page_"],
+[class*="chat_"] {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Global Backdrop Wallpaper (Active in Standard and Blur mode; none in Liquid Glass) */
+#app-mount::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--serp-window-bg) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Floating Island Architecture (Discord Visual Refresh Grid)
+   ========================================================================== */
+
+/* Outer Sidebar Container */
+[class*="sidebar_"] {
+  margin: 0 var(--serp-gap) var(--serp-gap) var(--serp-gap) !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+/* 1. Server List Island (Guilds) */
+nav[class*="guilds_"] {
+  margin-top: 0 !important;
+  margin-left: 0 !important;
+  margin-right: var(--serp-gap) !important;
+  margin-bottom: calc(var(--custom-app-panels-height, 0px) + var(--serp-gap)) !important;
+  border-radius: var(--serp-radius) !important;
+  background-color: color-mix(in srgb, var(--serp-crust) calc(var(--serp-bg-opacity) * 100%), transparent) !important;
+  backdrop-filter: var(--serp-backdrop-blur);
+  -webkit-backdrop-filter: var(--serp-backdrop-blur);
+  box-shadow: var(--serp-island-shadow) !important;
+  border: var(--serp-island-border) !important;
+  overflow: hidden !important;
+}
+
+nav[class*="guilds_"] [class*="guilds_"] {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* Ensure adequate breathing room at top so Direct Messages icon never touches border */
+nav[class*="guilds_"] [class*="scroller_"],
+nav[class*="guilds_"] ul[class*="tree_"] {
+  background: transparent !important;
+  padding-top: calc(var(--serp-gap) + 4px) !important;
+}
+
+/* Spacing for Direct Messages / Home icon */
+nav[class*="guilds_"] [class*="tutorialContainer_"] {
+  margin-top: 4px !important;
+  margin-bottom: 8px !important;
+}
+
+/* Server list divider line below Direct Messages */
+nav[class*="guilds_"] [class*="guildSeparator_"] {
+  background-color: color-mix(in srgb, var(--serp-subtext1) 25%, transparent) !important;
+  border-radius: 2px !important;
+  margin: 6px auto !important;
+}
+
+/* Discord Home / Direct Messages Icon in Server List */
+div[class*="childWrapper_"] {
+  background-color: color-mix(in srgb, var(--serp-surface0) 75%, transparent) !important;
+  color: var(--serp-text) !important;
+  border-radius: 50% !important;
+  transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.2s cubic-bezier(0.2, 0, 0, 1), border-radius 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+div[class*="wrapper_"]:hover div[class*="childWrapper_"],
+div[class*="wrapper_"][class*="selected_"] div[class*="childWrapper_"] {
+  background-color: var(--serp-primary) !important;
+  color: var(--serp-base) !important;
+  border-radius: calc(var(--serp-radius) * 0.85) !important;
+}
+
+div[class*="childWrapper_"] svg,
+div[class*="childWrapper_"] svg path,
+svg[class*="homeIcon_"],
+svg[class*="homeIcon_"] path {
+  fill: currentColor !important;
+  color: inherit !important;
+}
+
+/* Server selected pill marker */
+div[class*="item_"][class*="pill_"],
+nav[class*="guilds_"] [class*="item_"] {
+  width: 4px !important;
+  border-radius: 4px !important;
+  background-color: var(--serp-primary) !important;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--serp-primary) 60%, transparent) !important;
+  transition: height 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+/* Server icon squircle animation */
+nav[class*="guilds_"] [class*="wrapper_"] foreignObject {
+  border-radius: 50% !important;
+  transition: border-radius 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+nav[class*="guilds_"] [class*="wrapper_"]:hover foreignObject,
+nav[class*="guilds_"] [class*="wrapper_"][class*="selected_"] foreignObject {
+  border-radius: calc(var(--serp-radius) * 0.85) !important;
+}
+
+/* 2. Channels List Island */
+[class*="sidebarList_"],
+[class*="sidebar_"] > [class*="container_"],
+[class*="sidebar_"] > nav[class*="container_"],
+[class*="sidebar_"] > nav {
+  margin-bottom: calc(var(--custom-app-panels-height, 0px) + var(--serp-gap)) !important;
+  border-radius: var(--serp-radius) !important;
+  background-color: color-mix(in srgb, var(--serp-mantle) calc(var(--serp-bg-opacity) * 100%), transparent) !important;
+  backdrop-filter: var(--serp-backdrop-blur);
+  -webkit-backdrop-filter: var(--serp-backdrop-blur);
+  box-shadow: var(--serp-island-shadow) !important;
+  border: var(--serp-island-border) !important;
+  overflow: hidden !important;
+}
+
+/* Ensure all child scrollers, headers, banners, and lists in sidebar are transparent */
+[class*="sidebar_"],
+[class*="sidebar_"] > nav,
+[class*="sidebarList_"] [class*="scroller_"],
+[class*="sidebar_"] [class*="scroller_"],
+[class*="sidebar_"] [class*="header_"],
+[class*="sidebar_"] header,
+[class*="sidebar_"] [class*="content_"],
+[class*="sidebar_"] [class*="animatedContainer_"],
+[class*="sidebar_"] [class*="bannerImage_"],
+[class*="sidebar_"] [class*="bannerVisible_"],
+[class*="sidebar_"] [class*="container_"] [class*="scroller_"] {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Header & Search Bar */
+[class*="sidebar_"] [class*="header_"],
+[class*="sidebar_"] header {
+  border-bottom: 1px solid color-mix(in srgb, var(--serp-subtext1) 15%, transparent) !important;
+}
+
+div[class*="searchBar_"] {
+  background-color: color-mix(in srgb, var(--serp-surface0) 45%, transparent) !important;
+  border-radius: calc(var(--serp-radius) * 0.7) !important;
+  border: 1px solid color-mix(in srgb, var(--serp-subtext1) 15%, transparent) !important;
+}
+
+/* Channel Items & Interactive Pills */
+[class*="channel_"] > div[class*="interactive_"],
+[class*="link_"] {
+  border-radius: calc(var(--serp-radius) * 0.7) !important;
+  transition: background-color 0.15s ease, transform 0.15s ease !important;
+}
+
+[class*="channel_"] > div[class*="interactive_"]:hover,
+[class*="link_"]:hover {
+  background-color: color-mix(in srgb, var(--serp-surface0) 65%, transparent) !important;
+}
+
+/* Active Selected Channel */
+[class*="modeSelected_"] [class*="link_"],
+[class*="channel_"][class*="selected_"] > div[class*="interactive_"] {
+  background-color: color-mix(in srgb, var(--serp-primary) 20%, transparent) !important;
+  border-left: 3px solid var(--serp-primary) !important;
+}
+
+/* Unread Channel Indicator Bar */
+div[class*="unread_"] {
+  background-color: var(--serp-primary) !important;
+  border-radius: 4px !important;
+  width: 4px !important;
+  box-shadow: 0 0 6px color-mix(in srgb, var(--serp-primary) 50%, transparent) !important;
+}
+
+/* 3. User Panels Island (Bottom Left Profile, Audio Controls) */
+section[class*="panels_"],
+div[class*="panels_"] {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  border-radius: var(--serp-radius) !important;
+  background-color: color-mix(in srgb, var(--serp-mantle) calc(var(--serp-bg-opacity) * 100%), transparent) !important;
+  backdrop-filter: var(--serp-backdrop-blur);
+  -webkit-backdrop-filter: var(--serp-backdrop-blur);
+  border: var(--serp-island-border) !important;
+  box-shadow: var(--serp-island-shadow) !important;
+  overflow: hidden !important;
+}
+
+section[class*="panels_"] > div,
+section[class*="panels_"] [class*="container_"],
+section[class*="panels_"] [class*="activityPanel_"],
+section[class*="panels_"] [class*="panel_"],
+section[class*="panels_"] [class*="connection_"] {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* 4. Chat Island & Titlebar */
+[class*="page_"],
+[class*="chat_"] {
+  padding-bottom: var(--serp-gap) !important;
+  padding-right: var(--serp-gap) !important;
+}
+
+/* Titlebar */
+[class*="subtitleContainer_"],
+section[class*="title_"] {
+  margin-bottom: var(--serp-gap) !important;
+  border-radius: var(--serp-radius) !important;
+  background-color: color-mix(in srgb, var(--serp-base) calc(var(--serp-bg-opacity) * 100%), transparent) !important;
+  backdrop-filter: var(--serp-backdrop-blur);
+  -webkit-backdrop-filter: var(--serp-backdrop-blur);
+  border: var(--serp-island-border) !important;
+  box-shadow: var(--serp-island-shadow) !important;
+}
+
+section[class*="title_"] [class*="children_"],
+section[class*="title_"] [class*="toolbar_"] {
+  background: transparent !important;
+}
+
+/* Messages Scroller Island */
+[class*="chatContent_"] {
+  background: transparent !important;
+  border: none !important;
+}
+
+[class*="messagesWrapper_"] {
+  border-radius: var(--serp-radius) !important;
+  background-color: color-mix(in srgb, var(--serp-base) calc(var(--serp-bg-opacity) * 100%), transparent) !important;
+  backdrop-filter: var(--serp-backdrop-blur);
+  -webkit-backdrop-filter: var(--serp-backdrop-blur);
+  border: var(--serp-island-border) !important;
+  box-shadow: var(--serp-island-shadow) !important;
+  overflow: hidden !important;
+}
+
+[class*="messagesWrapper_"] [class*="scroller_"] {
+  background: transparent !important;
+}
+
+/* 5. Members List Island & Profile Sidebar */
+aside[class*="membersWrap_"],
+[class*="membersWrap_"],
+[class*="container_"][class*="membersWrap_"],
+[class*="userProfileOuter_"] {
+  margin-left: var(--serp-gap) !important;
+  border-radius: var(--serp-radius) !important;
+  background-color: color-mix(in srgb, var(--serp-mantle) calc(var(--serp-bg-opacity) * 100%), transparent) !important;
+  backdrop-filter: var(--serp-backdrop-blur);
+  -webkit-backdrop-filter: var(--serp-backdrop-blur);
+  border: var(--serp-island-border) !important;
+  box-shadow: var(--serp-island-shadow) !important;
+  overflow: hidden !important;
+}
+
+[class*="membersWrap_"] [class*="members_"],
+[class*="membersWrap_"] [class*="scroller_"],
+[class*="membersWrap_"] [class*="content_"],
+[class*="membersWrap_"] [class*="memberList_"],
+[class*="membersWrap_"] [class*="membersGroup_"] {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Activity Cards inside Members list */
+[class*="membersWrap_"] [class*="activity_"],
+[class*="membersWrap_"] [class*="activityCard_"],
+[class*="membersWrap_"] [class*="activityItem_"],
+[class*="membersWrap_"] [class*="container_"] [class*="activity_"] {
+  background-color: color-mix(in srgb, var(--serp-surface0) 40%, transparent) !important;
+  border-radius: calc(var(--serp-radius) * 0.75) !important;
+  border: 1px solid color-mix(in srgb, var(--serp-subtext1) 15%, transparent) !important;
+}
+
+div[class*="member_"] {
+  border-radius: calc(var(--serp-radius) * 0.7) !important;
+  margin: 2px 8px !important;
+  transition: background-color 0.15s ease, transform 0.15s ease !important;
+}
+
+div[class*="member_"]:hover {
+  background-color: color-mix(in srgb, var(--serp-surface0) 65%, transparent) !important;
+  transform: translateX(2px);
+}
+
+/* ==========================================================================
+   Detached Floating Chatbox
+   ========================================================================== */
+
+form[class*="form_"] {
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 0 !important;
+  margin-top: 0 !important;
+  background: transparent !important;
+}
+
+form[class*="form_"]::before,
+form[class*="form_"]::after {
+  display: none !important;
+}
+
+[class*="channelBottomBarArea_"] {
+  margin-top: var(--serp-gap) !important;
+  margin-bottom: 2px !important;
+}
+
+/* Floating Chat Text Area */
+#app-mount [class*="channelTextArea_"] {
+  margin: 0 !important;
+  border-radius: calc(var(--serp-radius) * 1.2) !important;
+  background-color: color-mix(in srgb, var(--serp-surface0) 80%, transparent) !important;
+  border: var(--serp-island-border) !important;
+  box-shadow: var(--serp-island-shadow) !important;
+  backdrop-filter: var(--serp-backdrop-blur);
+  -webkit-backdrop-filter: var(--serp-backdrop-blur);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease !important;
+}
+
+#app-mount [class*="channelTextArea_"] [class*="scrollableContainer_"] {
+  background: transparent !important;
+  border: none !important;
+}
+
+#app-mount [class*="channelTextArea_"]:focus-within {
+  border-color: var(--serp-primary) !important;
+  box-shadow: var(--serp-island-shadow), 0 0 16px color-mix(in srgb, var(--serp-primary) 35%, transparent) !important;
+}
+
+/* Typing Indicator Positioning (Prevent layout shifts) */
+[class*="typing_"] {
+  position: absolute !important;
+  order: -1 !important;
+  top: -24px !important;
+  left: 12px !important;
+  height: 22px !important;
+  background: transparent !important;
+  font-size: 12px !important;
+}
+
+/* Reply & Thread Suggestion Bar */
+[class*="stackedBars_"] {
+  background-color: transparent !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--serp-subtext1) 15%, transparent) !important;
+}
+
+[class*="stackedBars_"] [class*="replyBar_"] {
+  background: transparent !important;
+}
+
+/* ==========================================================================
+   Message Elements & Cards (Safe for Cozy & Compact)
+   ========================================================================== */
+
+li[class*="messageListItem_"] {
+  margin: 2px 8px !important;
+}
+
+div[class*="message_"] {
+  border-radius: calc(var(--serp-radius) * 0.75) !important;
+  margin-left: 6px !important;
+  margin-right: 6px !important;
+  background-color: transparent !important;
+  transition: background-color 0.18s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.18s ease !important;
+  border: 1px solid transparent !important;
+}
+
+/* Ensure Cozy message gutter is never compressed so avatars never overlap content or embeds */
+div[class*="message_"][class*="cozy_"],
+div[class*="cozyMessage_"] {
+  padding-left: 72px !important;
+}
+
+/* User & Bot Avatars */
+img[class*="avatar_"],
+div[class*="avatar_"] {
+  border-radius: calc(var(--serp-radius) * 0.8) !important;
+}
+
+div[class*="message_"]:hover {
+  background-color: color-mix(in srgb, var(--serp-surface0) 45%, transparent) !important;
+}
+
+/* Mention Highlight */
+div[class*="message_"][class*="mentioned_"] {
+  background-color: color-mix(in srgb, var(--serp-primary) 14%, transparent) !important;
+  border-left: 3px solid var(--serp-primary) !important;
+  box-shadow: 0 0 20px -4px color-mix(in srgb, var(--serp-primary) 25%, transparent) !important;
+}
+div[class*="message_"][class*="mentioned_"]::before {
+  display: none !important;
+}
+
+/* Reply Highlight */
+div[class*="message_"][class*="replying_"] {
+  background-color: color-mix(in srgb, var(--serp-secondary) 12%, transparent) !important;
+  border-left: 3px solid var(--serp-secondary) !important;
+}
+div[class*="message_"][class*="replying_"]::before {
+  display: none !important;
+}
+
+/* Floating Action Toolbar on Message Hover */
+div[class*="buttonContainer_"] [class*="wrapper_"],
+[class*="buttons_"] [class*="wrapper_"] {
+  border-radius: 9999px !important;
+  background-color: color-mix(in srgb, var(--serp-mantle) 90%, transparent) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid color-mix(in srgb, var(--serp-subtext1) 20%, transparent) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Embed Cards */
+[class*="embedFull_"] {
+  margin-left: 0 !important;
+  border-radius: var(--serp-radius) !important;
+  background-color: color-mix(in srgb, var(--serp-surface0) 65%, transparent) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid color-mix(in srgb, var(--serp-subtext1) 15%, transparent) !important;
+  border-left-width: 4px !important;
+  border-left-style: solid !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+[class*="embedFull_"]:not([style*="border-color"]) {
+  border-left-color: var(--serp-primary) !important;
+}
+
+/* Reactions Pill */
+div[class*="reaction_"] {
+  border-radius: 9999px !important;
+  background-color: color-mix(in srgb, var(--serp-surface0) 50%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--serp-subtext1) 20%, transparent) !important;
+  transition: all 0.15s ease !important;
+}
+
+div[class*="reaction_"][class*="reactionMe_"] {
+  background-color: color-mix(in srgb, var(--serp-primary) 22%, transparent) !important;
+  border-color: var(--serp-primary) !important;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--serp-primary) 30%, transparent) !important;
+}
+
+/* Codeblocks */
+code {
+  font-family: "Iosevka Nerd Font", "JetBrains Mono", "Fira Code", monospace !important;
+}
+
+pre code,
+div[class*="codeContainer_"] {
+  border-radius: calc(var(--serp-radius) * 0.75) !important;
+  background-color: var(--serp-crust) !important;
+  border: 1px solid color-mix(in srgb, var(--serp-subtext1) 20%, transparent) !important;
+  color: var(--serp-peach) !important;
+}
+
+/* ==========================================================================
+   Context Menus, Popouts & Modals (Chromium Anti-Clipping Pseudo-Element)
+   ========================================================================== */
+
+div[class*="menu_"],
+div[class*="popout_"]:not([class*="userProfile_"]) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  position: relative !important;
+}
+
+div[class*="menu_"]::before,
+div[class*="popout_"]:not([class*="userProfile_"])::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--serp-radius);
+  background-color: color-mix(in srgb, var(--serp-mantle) 95%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: var(--serp-island-border);
+  box-shadow: var(--popout-shadow);
+  z-index: -1;
+  pointer-events: none;
+}
+
+div[class*="menu_"] [class*="item_"] {
+  border-radius: calc(var(--serp-radius) * 0.6) !important;
+  transition: background-color 0.15s ease !important;
+}
+
+div[class*="menu_"] [class*="item_"][class*="focused_"] {
+  background-color: color-mix(in srgb, var(--serp-primary) 22%, transparent) !important;
+  color: var(--serp-primary) !important;
+}
+
+/* User Profile Cards & Modal */
+div[class*="userProfileOuter_"],
+div[class*="userProfileModalOuter_"] {
+  border-radius: calc(var(--serp-radius) * 1.3) !important;
+  background-color: color-mix(in srgb, var(--serp-mantle) 92%, transparent) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  border: var(--serp-island-border) !important;
+  box-shadow: var(--popout-shadow) !important;
+}
+
+div[class*="userProfileInner_"],
+div[class*="userProfileModalInner_"] {
+  border-radius: calc(var(--serp-radius) * 1.1) !important;
+}
+
+div[class*="profileBadges_"] {
+  background-color: color-mix(in srgb, var(--serp-surface0) 80%, transparent) !important;
+  border-radius: calc(var(--serp-radius) * 0.7) !important;
+  border: 1px solid color-mix(in srgb, var(--serp-subtext1) 15%, transparent) !important;
+}
+
+/* Badges / Ping Mentions */
+span[class*="numberBadge_"],
+[class*="iconBadge_"] {
+  background-color: var(--serp-primary) !important;
+  color: var(--serp-base) !important;
+  font-weight: 700 !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 0 10px 1px color-mix(in srgb, var(--serp-primary) 55%, transparent) !important;
+}
+
+/* ==========================================================================
+   Friends View & Settings Modal
+   ========================================================================== */
+
+/* Friends Tab */
+div[class*="tabBody_"] {
+  margin: 0 !important;
+  background: transparent !important;
+}
+
+div[class*="peopleColumn_"] {
+  border-radius: var(--serp-radius) !important;
+  background-color: color-mix(in srgb, var(--serp-base) calc(var(--serp-bg-opacity) * 100%), transparent) !important;
+  backdrop-filter: var(--serp-backdrop-blur);
+  -webkit-backdrop-filter: var(--serp-backdrop-blur);
+  border: var(--serp-island-border) !important;
+  box-shadow: var(--serp-island-shadow) !important;
+  overflow: hidden !important;
+}
+
+div[class*="nowPlayingColumn_"] {
+  margin-left: var(--serp-gap) !important;
+  border-radius: var(--serp-radius) !important;
+  background-color: color-mix(in srgb, var(--serp-mantle) calc(var(--serp-bg-opacity) * 100%), transparent) !important;
+  backdrop-filter: var(--serp-backdrop-blur);
+  -webkit-backdrop-filter: var(--serp-backdrop-blur);
+  border: var(--serp-island-border) !important;
+  box-shadow: var(--serp-island-shadow) !important;
+  overflow: hidden !important;
+}
+
+div[class*="peopleListItem_"] {
+  border-radius: calc(var(--serp-radius) * 0.7) !important;
+  margin: 2px 12px !important;
+  padding: 8px 12px !important;
+  border-bottom: none !important;
+  transition: background-color 0.15s ease !important;
+}
+
+div[class*="peopleListItem_"]:hover {
+  background-color: color-mix(in srgb, var(--serp-surface0) 65%, transparent) !important;
+}
+
+/* Settings Modal */
+div[class*="standardSidebarView_"] {
+  border-radius: calc(var(--serp-radius) * 1.2) !important;
+  background-color: color-mix(in srgb, var(--serp-base) calc(var(--serp-bg-opacity) * 100%), transparent) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  border: var(--serp-island-border) !important;
+  box-shadow: var(--popout-shadow) !important;
+}
+
+div[class*="sidebarRegionScroller_"],
+div[class*="contentRegionScroller_"] {
+  background: transparent !important;
+}
+
+div[class*="sidebarRegion_"] [class*="item_"] {
+  border-radius: calc(var(--serp-radius) * 0.7) !important;
+  transition: all 0.15s ease !important;
+}
+
+div[class*="sidebarRegion_"] [class*="item_"]:hover {
+  background-color: color-mix(in srgb, var(--serp-surface0) 65%, transparent) !important;
+}
+
+div[class*="sidebarRegion_"] [class*="item_"][class*="selected_"] {
+  background-color: color-mix(in srgb, var(--serp-primary) 22%, transparent) !important;
+  color: var(--serp-primary) !important;
+}
+
+/* Search results panel */
+section[class*="searchResultsWrap_"] {
+  margin-left: var(--serp-gap) !important;
+  border-radius: var(--serp-radius) !important;
+  background-color: color-mix(in srgb, var(--serp-mantle) calc(var(--serp-bg-opacity) * 100%), transparent) !important;
+  backdrop-filter: var(--serp-backdrop-blur);
+  -webkit-backdrop-filter: var(--serp-backdrop-blur);
+  box-shadow: var(--serp-island-shadow) !important;
+  border: var(--serp-island-border) !important;
+  overflow: hidden !important;
+}
+
+div[class*="searchHeader_"] {
+  background-color: transparent !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--serp-subtext1) 15%, transparent) !important;
+}
+
+div[class*="searchResult_"] {
+  background-color: color-mix(in srgb, var(--serp-surface0) 50%, transparent) !important;
+  border-radius: calc(var(--serp-radius) * 0.7) !important;
+  border: 1px solid color-mix(in srgb, var(--serp-subtext1) 15%, transparent) !important;
+  margin: 6px 8px !important;
+}
+
+/* Thread sidebar */
+div[class*="threadSidebar_"] {
+  margin-left: var(--serp-gap) !important;
+  border-radius: var(--serp-radius) !important;
+  background-color: color-mix(in srgb, var(--serp-base) calc(var(--serp-bg-opacity) * 100%), transparent) !important;
+  backdrop-filter: var(--serp-backdrop-blur);
+  -webkit-backdrop-filter: var(--serp-backdrop-blur);
+  border: var(--serp-island-border) !important;
+  box-shadow: var(--serp-island-shadow) !important;
+  overflow: hidden !important;
+}
+
+/* Voice Call Containers */
+div[class*="callContainer_"] {
+  background-color: color-mix(in srgb, var(--serp-crust) calc(var(--serp-bg-opacity) * 100%), transparent) !important;
+  border-radius: var(--serp-radius) !important;
+  overflow: hidden !important;
+}
+
+div[class*="connection_"] {
+  background-color: color-mix(in srgb, var(--serp-surface0) 65%, transparent) !important;
+  border-top: 1px solid color-mix(in srgb, var(--serp-subtext1) 15%, transparent) !important;
+}

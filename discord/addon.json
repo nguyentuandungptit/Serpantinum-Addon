@@ -1,0 +1,10 @@
+{
+  "id": "discord",
+  "name": "Discord Mod (Vencord + Serpantinum)",
+  "version": "1.0.0",
+  "description": "Adaptive Material You, floating island architecture, and liquid glass styling for Discord via Vencord.",
+  "author": "PageNguyen",
+  "dependencies": ["discord|vesktop", "vencord"],
+  "homepage": "https://github.com/Vendicated/Vencord",
+  "installed_check": "[ -f \"$SERPANTINUM_DIR/src/scripts/discord_sync.sh\" ]"
+}
