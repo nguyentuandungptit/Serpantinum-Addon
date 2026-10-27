@@ -240,23 +240,30 @@ Integrates real-time dynamic Material You styling with **Discord** and **Vesktop
 ./install.sh uninstall discord
 ```
 
-#### Shell Patch (required for colour sync)
+#### Shell Patch (required for colour and blur sync)
 
 Blur and layout are substituted by `scripts/discord_sync.sh`, but colours only
-come from the CSS that matugen renders. Two defects in the shell make matugen
-fail silently:
+come from the CSS that matugen renders. Four defects in the shell break that
+pipeline:
 
 - `matugenBaseDir` appends a second `/src` (`SERPANTINUM_DIR` already ends in
   `/src`), so matugen is handed a config path that does not exist and exits
   immediately. The old code discarded stderr, so the failure was invisible.
 - `toMd3()` never emits `outline_variant`, so static palettes abort with
   `ResolveError at discord:NN:NN`.
+- `syncDiscord()` trusts `ThemeBackend.blurBackground`, which is forced off
+  inside the standalone settings window. Picking a colour there rewrites the
+  Discord theme with `--serp-backdrop-blur: none` even though blur is enabled.
+- `Config` drops `settings.json` changes that arrive while it is writing, and
+  rewrites the file on quit, so the settings window and the shell can resurrect
+  stale values such as `blurBackground: false`.
 
-`scripts/patch_matugen.py` fixes both in
-`<TARGET_DIR>/src/quickshell/singletons/theme/Matugen.qml`. It anchors on the
-upstream source instead of copying the whole file, is safe to run repeatedly,
-keeps the original as `Matugen.qml.pre-discord-addon`, and `uninstall.sh`
-restores it.
+`scripts/patch_matugen.py` fixes them in
+`<TARGET_DIR>/src/quickshell/singletons/` (`theme/Matugen.qml`,
+`theme/ThemeBackend.qml` when present, `system/Config.qml`). It anchors on the
+upstream source instead of copying whole files, is safe to run repeatedly,
+keeps the originals as `<name>.pre-discord-addon`, and `uninstall.sh` restores
+them.
 
 Re-run the installer after every Serpantinum update, because an update replaces
 the entire `src/` tree:
@@ -266,4 +273,5 @@ the entire `src/` tree:
 ```
 
 Use `--skip-qml-patch` to install the theme without touching the shell (blur
-keeps syncing, colours stay stale).
+keeps syncing from the last generated CSS, but colours stay stale and picking a
+colour from the settings window can drop the blur).

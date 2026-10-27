@@ -21,7 +21,7 @@ Options:
   --target-dir <DIR>      Serpantinum target directory to remove addon files from
   --non-interactive       Run non-interactively without user prompts
   --skip-vencord-config   Skip modifying ~/.config/Vencord settings and themes
-  --skip-qml-patch        Keep the shell's Matugen.qml patch in place
+  --skip-qml-patch        Keep the shell theme patch in place
   -h, --help              Show this help message and exit
 EOF
 }
@@ -170,11 +170,11 @@ PYEOF
 remove_matugen_config "$TARGET_DIR/src/assets/matugen/config.toml"
 remove_matugen_config "$TARGET_DIR/src/assets/matugen/config-static.toml"
 
-# 3. Restore the shell singleton from the addon backup
+# 3. Restore the shell singletons from the addon backups
 MATUGEN_QML="$TARGET_DIR/src/quickshell/singletons/theme/Matugen.qml"
 SOURCE_QML_PATCHER="$SCRIPT_DIR/scripts/patch_matugen.py"
 if [[ "$SKIP_QML_PATCH" == "true" ]]; then
-    echo "Keeping Matugen.qml patch (--skip-qml-patch)"
+    echo "Keeping shell patch (--skip-qml-patch)"
 elif [[ -f "$MATUGEN_QML" && -f "$SOURCE_QML_PATCHER" ]]; then
     python3 "$SOURCE_QML_PATCHER" --revert "$MATUGEN_QML" || true
 fi

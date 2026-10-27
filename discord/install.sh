@@ -29,8 +29,9 @@ Options:
   --non-interactive       Run non-interactively without user prompts
   --skip-deps             Skip dependency checks
   --skip-vencord-config   Skip configuring ~/.config/Vencord settings and themes
-  --skip-qml-patch        Do not patch the shell's Matugen.qml (blur still syncs,
-                          but Discord colours will not follow the wallpaper)
+  --skip-qml-patch        Do not patch the shell's theme singletons (blur keeps
+                          syncing, but Discord colours will not follow the
+                          wallpaper and blur can be lost when picking a colour)
   --force                 Proceed with installation even if dependencies are missing
   -h, --help              Show this help message and exit
 EOF
@@ -322,15 +323,17 @@ EOF
 inject_matugen_config "$TARGET_DIR/src/assets/matugen/config.toml"
 inject_matugen_config "$TARGET_DIR/src/assets/matugen/config-static.toml"
 
-# Patch the shell singleton that drives matugen.
+# Patch the shell singletons that drive the theme pipeline.
 #
 # Without this, matugen is handed a doubled path ("<root>/src/src/assets/..."),
 # fails silently, and only the blur tokens (substituted by discord_sync.sh)
-# ever reach Discord. The patch is anchored on upstream source, idempotent, and
-# re-applied by every install, so a shell update does not need manual editing.
+# ever reach Discord. The same patcher also keeps blur alive when a colour is
+# picked from the standalone settings window and closes two settings.json
+# races between that window and the shell. Every edit is anchored on upstream
+# source and idempotent, so a shell update does not need manual editing.
 MATUGEN_QML="$TARGET_DIR/src/quickshell/singletons/theme/Matugen.qml"
 if [[ "$SKIP_QML_PATCH" == "true" ]]; then
-    echo "Skipping Matugen.qml patch (--skip-qml-patch)"
+    echo "Skipping shell patch (--skip-qml-patch)"
 elif [[ ! -f "$SOURCE_QML_PATCHER" ]]; then
     echo "Warning: patcher not found: $SOURCE_QML_PATCHER" >&2
 elif [[ ! -f "$MATUGEN_QML" ]]; then

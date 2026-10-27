@@ -240,21 +240,28 @@ Tùy biến giao diện **Discord** và **Vesktop** theo phong cách Material Yo
 ./install.sh uninstall discord
 ```
 
-#### Bản Vá Shell (bắt buộc để đồng bộ màu)
+#### Bản Vá Shell (bắt buộc để đồng bộ màu và blur)
 
 Blur và bố cục do `scripts/discord_sync.sh` thay token, nhưng màu chỉ đến từ
-file CSS mà matugen render. Hai lỗi trong shell khiến matugen chết âm thầm:
+file CSS mà matugen render. Bốn lỗi trong shell phá vỡ pipeline đó:
 
 - `matugenBaseDir` ghép thêm một `/src` nữa (`SERPANTINUM_DIR` vốn đã kết thúc
   bằng `/src`), nên matugen nhận đường dẫn config không tồn tại và thoát ngay.
   Code cũ bỏ qua stderr nên không ai thấy lỗi.
 - `toMd3()` không sinh `outline_variant`, nên palette tĩnh chết với
   `ResolveError at discord:NN:NN`.
+- `syncDiscord()` tin vào `ThemeBackend.blurBackground`, mà giá trị này bị ép
+  về `false` trong cửa sổ settings standalone. Chọn màu ở đó sẽ ghi lại theme
+  Discord với `--serp-backdrop-blur: none` dù blur đang bật.
+- `Config` bỏ qua thay đổi `settings.json` đến trong lúc đang ghi, và ghi đè
+  file khi thoát, nên cửa sổ settings và shell có thể làm sống lại giá trị cũ
+  như `blurBackground: false`.
 
-`scripts/patch_matugen.py` vá cả hai trong
-`<TARGET_DIR>/src/quickshell/singletons/theme/Matugen.qml`. Script bám vào mã
-nguồn gốc thay vì chép đè cả file, chạy lại nhiều lần không nhân bản, giữ bản
-gốc ở `Matugen.qml.pre-discord-addon`, và `uninstall.sh` sẽ khôi phục lại.
+`scripts/patch_matugen.py` vá tất cả trong
+`<TARGET_DIR>/src/quickshell/singletons/` (`theme/Matugen.qml`,
+`theme/ThemeBackend.qml` nếu có, `system/Config.qml`). Script bám vào mã nguồn
+gốc thay vì chép đè cả file, chạy lại nhiều lần không nhân bản, giữ bản gốc ở
+`<tên>.pre-discord-addon`, và `uninstall.sh` sẽ khôi phục lại.
 
 Phải chạy lại installer sau mỗi lần cập nhật Serpantinum, vì bản cập nhật thay
 toàn bộ cây `src/`:
@@ -264,4 +271,5 @@ toàn bộ cây `src/`:
 ```
 
 Dùng `--skip-qml-patch` nếu chỉ muốn cài theme mà không đụng vào shell (blur
-vẫn đồng bộ, nhưng màu sẽ không đổi theo hình nền).
+vẫn đồng bộ theo CSS đã tạo lần cuối, nhưng màu sẽ không đổi theo hình nền và
+chọn màu từ cửa sổ settings có thể làm mất blur).
